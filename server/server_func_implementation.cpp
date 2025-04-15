@@ -30,20 +30,40 @@ void handleClient(int clientSocket) {
     close(clientSocket);
 }
 
+// void registerUser(int clientSocket) {
+//     char name[100], pass[100];
+//     read(clientSocket, name, sizeof(name));
+//     read(clientSocket, pass, sizeof(pass));
+//     lock_guard<mutex> lock(userMutex);
+//     users[name] = {name, pass};
+//     int success = 1;
+//     write(clientSocket, &success, sizeof(success));
+// }
+string readString(int sock) {
+    string result;
+    char ch;
+    while (read(sock, &ch, 1) > 0 && ch != '\0') {
+        result += ch;
+    }
+    return result;
+}
+
 void registerUser(int clientSocket) {
-    char name[100], pass[100];
-    read(clientSocket, name, sizeof(name));
-    read(clientSocket, pass, sizeof(pass));
+    string name = readString(clientSocket);
+    string pass = readString(clientSocket);
     lock_guard<mutex> lock(userMutex);
     users[name] = {name, pass};
     int success = 1;
     write(clientSocket, &success, sizeof(success));
 }
 
+
 void loginUser(int clientSocket) {
-    char name[100], pass[100];
-    read(clientSocket, name, sizeof(name));
-    read(clientSocket, pass, sizeof(pass));
+    // char name[100], pass[100];
+    // read(clientSocket, name, sizeof(name));
+    // read(clientSocket, pass, sizeof(pass));
+    string name = readString(clientSocket);
+    string pass = readString(clientSocket);
     lock_guard<mutex> lock(userMutex);
     int success = (users.count(name) && users[name].password == pass);
     write(clientSocket, &success, sizeof(success));
